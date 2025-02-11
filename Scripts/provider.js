@@ -95,6 +95,7 @@ class IssueProvider {
             // NOTE: mypy gives an exclusive range
             for (let issue of this.parser.issues) {
                 if (typeof issue.endColumn !== "undefined") issue.endColumn += 1;
+                if (issue.column === undefined) issue.column = 0;
             }
 
             // NOTE: Nova version 1.2 and prior has a known bug

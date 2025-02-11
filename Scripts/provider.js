@@ -4,7 +4,8 @@ class IssueProvider {
     constructor(config) {
         this.config = config;
         this.issueCollection = new IssueCollection("mypy");
-        this.parser = new IssueParser("mypy");
+        this.errorParser = new IssueParser("mypy-error");
+        this.noteParser = new IssueParser("mypy-note");
     }
 
     getProcessOptions(filePath, tmpPath = null) {
@@ -87,13 +88,18 @@ class IssueProvider {
             return;
         }
 
-        process.onStdout((output) => this.parser.pushLine(output));
+        process.onStdout((output) => {
+            this.errorParser.pushLine(output);
+            this.noteParser.pushLine(output);
+        });
         process.onStderr((error) => console.error(error));
         process.onDidExit((status) => {
             console.info(`Checking ${filePath}`);
 
+            var allIssues = [...this.errorParser.issues, ...this.noteParser.issues];
+
             // NOTE: mypy gives an exclusive range
-            for (let issue of this.parser.issues) {
+            for (let issue of allIssues) {
                 if (typeof issue.endColumn !== "undefined") issue.endColumn += 1;
                 if (issue.column === undefined) issue.column = 0;
             }
@@ -106,14 +112,15 @@ class IssueProvider {
                 }
             }
 
-            console.info(`Found ${this.parser.issues.length} issue(s)`);
+            console.info(`Found ${allIssues.length} issue(s)`);
 
             if (tmpPath) {
                 nova.fs.remove(tmpPath);
             }
 
-            this.issueCollection.set(editor.document.uri, this.parser.issues);
-            this.parser.clear();
+            this.issueCollection.set(editor.document.uri, allIssues);
+            this.errorParser.clear();
+            this.noteParser.clear();
 
             // HACK: nova.assistants.registerIssueAssistant uses its own private and
             // nameless IssueCollection, and that leads to issue duplication between

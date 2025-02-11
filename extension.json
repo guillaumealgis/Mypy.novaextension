@@ -34,16 +34,27 @@
         ]
     },
     "issueMatchers": {
-        "mypy": {
+        "mypy-error": {
             "pattern": {
-                "regexp": "^.+\\.py.?:(\\d+):(?:(\\d+):)?(?:(\\d+):)?(?:(\\d+):)?\\s(\\w+):\\s(.+(?:\\s\\s\\[(.+)\\])|.+(?!\\s\\s))",
-                "message": 6,
-                "code": 7,
-                "line": 1,
-                "column": 2,
-                "endLine": 3,
-                "endColumn": 4,
-                "severity": 5
+                "regexp": "^(.+\\.py):(\\d+)(:(\\d+))?(:(\\d+)(:(\\d+))?)?: error: (.+?)(\\s+\\[(.+)\\])?$",
+                "message": 9,
+                "code": 11,
+                "line": 2,
+                "column": 4,
+                "endLine": 6,
+                "endColumn": 8,
+                "severity": "error"
+            }
+        },
+        "mypy-note": {
+            "pattern": {
+                "regexp": "^(.+\\.py):(\\d+)(:(\\d+))?(:(\\d+)(:(\\d+))?)?: note: (.+)$",
+                "message": 9,
+                "line": 2,
+                "column": 4,
+                "endLine": 6,
+                "endColumn": 8,
+                "severity": "warning"
             }
         }
     },
